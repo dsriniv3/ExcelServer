@@ -11,15 +11,13 @@ public class ToolUsage {
     private String pluginName;
 	private Date timeStamp;
 	private String applicationName;
-	String fileData;
-	
+	String file;
 	
 	ToolUsage(String toolName, String file)
 	{
 		this.toolName = toolName.trim();
 		this.timeStamp = new Date(System.currentTimeMillis());
-		this.fileData=file;
-		this.applicationName="Excel";
+		this.file=file;
 		//System.out.println("Tool Usage for "+toolName+" "+file);
 	}
 
@@ -49,7 +47,8 @@ public class ToolUsage {
 			jobj.put("pluginName", getPluginName());
 			jobj.put("Tool_Name", getToolName());
 			jobj.put("Tool_Timestamp", getTimeStamp().getTime());
-			jobj.put("file", fileData);
+			if(file!=null)
+				jobj.put("file", file);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

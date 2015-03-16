@@ -1,6 +1,5 @@
 package excel;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -8,17 +7,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.json.JSONException;
-import org.json.JSONObject;
-/*
- * This file contains the main server class and all the required handlers.
- */
 
 class ScannerHandler extends AbstractHandler
  {
@@ -35,7 +27,13 @@ class ScannerHandler extends AbstractHandler
 	    baseRequest.setHandled(true);
 	    
 		String directory_path = request.getParameter("dir");
-		directory.put(directory_path);
+		String is_private = request.getParameter("isPrivate");
+		boolean isPrivate=true;
+		if(is_private=="false")
+		{
+			isPrivate=false;
+		}
+		directory.put(new Directory(directory_path,isPrivate));
 		
 	}
  }
@@ -52,11 +50,11 @@ class Runner implements Runnable
 		int index=0;
 		while(true)
 		{
-				String str=directory.get(index);
-				if(str!=null)
+				Directory dir=directory.get(index);
+				if(dir!=null)
 				{
-					System.out.println("About to scan "+str);
-					ExcelRecommender.scan(str);
+					System.out.println("About to scan "+dir.getDirectory());
+					ExcelRecommender.scan(dir);
 					index++;
 				}
 			
@@ -65,13 +63,13 @@ class Runner implements Runnable
 }
 class DirectoryList
 {
-	private ArrayList<String> directories;
+	private ArrayList<Directory> directories;
 	private boolean available = false;
 	DirectoryList()
 	{
-		directories=new ArrayList<String>();
+		directories=new ArrayList<Directory>();
 	}
-	public synchronized String get(int index)
+	public synchronized Directory get(int index)
 	{
 		while(available==false)
 		{
@@ -86,11 +84,33 @@ class DirectoryList
 		notifyAll();
 		return directories.get(index);
 	}
-	public synchronized void put(String dir)
+	public synchronized void put(Directory dir)
 	{
 		directories.add(dir);
 		available=true;
 		notifyAll();
+	}
+}
+class Directory
+{
+	private String directory;
+	private boolean isPrivate;
+	Directory(String directory, boolean isPrivate)
+	{
+		this.directory=directory;
+		this.isPrivate=isPrivate;
+	}
+	public String getDirectory() {
+		return directory;
+	}
+	public void setDirectory(String directory) {
+		this.directory = directory;
+	}
+	public boolean isPrivate() {
+		return isPrivate;
+	}
+	public void setPrivate(boolean isPrivate) {
+		this.isPrivate = isPrivate;
 	}
 }
 public class ExcelServer {

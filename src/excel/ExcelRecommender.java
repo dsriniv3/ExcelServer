@@ -35,10 +35,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ExcelRecommender {
-	public static void scan(String directory)
+	public static void scan(Directory directory)
 	{
 		HashMap<String, File> functions_map = new HashMap<String, File>();
-		File folder  =  new File(directory);
+		File folder  =  new File(directory.getDirectory());
 		File[] files  =  folder.listFiles();
 		Functions functions = new Functions();
 		for(File excelFile:files)
@@ -68,7 +68,10 @@ public class ExcelRecommender {
 			        		    		if(functions.functionMap.get(extractedFormula)!=null)
 			        		    		{
 			        		    			if(functions_map.get(extractedFormula)==null)
+			        		    			{
 			        		    				functions_map.put(extractedFormula,excelFile);
+			        		    				System.out.println("Function:"+extractedFormula+" Filename:"+excelFile.getName());
+			        		    			}
 			        		    			      		    				
 			        		    		}
 			        		    }
@@ -77,7 +80,7 @@ public class ExcelRecommender {
 				    }
 					
 			    }
-				//Send a Json object for every entry in the HashMap
+				
 			} catch (InvalidFormatException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -88,16 +91,17 @@ public class ExcelRecommender {
 			}
 		}
 		try {
-			reportTools(functions_map);
+			reportTools(functions_map, directory.isPrivate());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} 
+		
 
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static void reportTools(HashMap<String,File> functionMap) throws JSONException
+	public static void reportTools(HashMap<String,File> functionMap, boolean isPrivate) throws JSONException
 	{
 		//making the ToolUsage objects
 		//System.out.println("Preparing to report tools for functionMap of size "+functionMap.size());
@@ -106,8 +110,19 @@ public class ExcelRecommender {
 	    int i=0;
 		while (it.hasNext()) {
 		    Map.Entry pair = (Map.Entry)it.next();
-	        usages[i++] = new ToolUsage(pair.getKey().toString(), encodeBase64((File)pair.getValue()));
-	        it.remove(); // avoids a ConcurrentModificationException
+		    if(!isPrivate)
+		    	usages[i++] = new ToolUsage(pair.getKey().toString(), encodeBase64((File)pair.getValue()));
+		    else
+		    {
+		    	try
+		    	{
+		    		usages[i++] = new ToolUsage(pair.getKey().toString(), ((File)pair.getValue()).getCanonicalPath());
+		    	}catch(IOException e)
+		    	{
+		    		System.out.println("Could not get path of file being read");
+		    	}
+		    }
+		    it.remove(); // avoids a ConcurrentModificationException
 	    }
 		for(int j=0;j<i;j++)
 		{
