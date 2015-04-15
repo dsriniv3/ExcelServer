@@ -14,13 +14,16 @@ import org.json.JSONObject;
 
 public class HTTPUtil {
 
-		public static String getRequestBody(HttpServletRequest request) throws IOException{
+	public static String getRequestBody(HttpServletRequest request) throws IOException
+	{
 		StringBuilder sb = new StringBuilder();
 		BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
 		String data;
+		
 		while((data= br.readLine())!=null){
 			sb.append(data).append('\n');
 		}	
+		
 		return sb.toString();
 	}
 	
@@ -31,25 +34,27 @@ public class HTTPUtil {
 	 * @throws JSONException
 	 * @throws IOException
 	 */
-		public static String getResponseBody(HttpResponse response) throws IOException
+	public static String getResponseBody(HttpResponse response) throws IOException
+	{
+		StringBuilder sb = new StringBuilder();
+		InputStream ips = response.getEntity().getContent();
+	
+		try (BufferedReader buf = new BufferedReader(new InputStreamReader(ips, StandardCharsets.UTF_8));)
 		{
-			StringBuilder sb = new StringBuilder();
-			InputStream ips = response.getEntity().getContent();
-			try (BufferedReader buf = new BufferedReader(new InputStreamReader(ips, StandardCharsets.UTF_8));)
+			String s;
+			while (true)
 			{
-				String s;
-				while (true)
-				{
-					s = buf.readLine();
-					if (s == null || s.length() == 0)
-						break;
-					sb.append(s);
+				s = buf.readLine();
+				if (s == null || s.length() == 0)
+					break;
+				sb.append(s);
 				}
 			}
 			return sb.toString();
 		}
 		
-	public static JSONObject getRequestJSON(HttpServletRequest request) throws JSONException {
+	public static JSONObject getRequestJSON(HttpServletRequest request) throws JSONException
+	{
 		String jsonString;
 		try
 		{
@@ -61,6 +66,4 @@ public class HTTPUtil {
 		}
 		return new JSONObject(jsonString);
 	}
-	
-	
 }
