@@ -49,7 +49,7 @@ public class UploadHandler extends HandlerWrapper
     
     public static void enableMultipartSupport(HttpServletRequest request) {
         request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, MULTI_PART_CONFIG);
-      }
+    }
 	
     
 	public void handle(String target, Request baseRequest, HttpServletRequest req, HttpServletResponse response) 
@@ -88,21 +88,29 @@ public class UploadHandler extends HandlerWrapper
             	logger.error("The request could not be parsed");
             	
             }
- 
+            
             // Process the uploaded items
             Iterator<FileItem> iter = items.iterator();
             int count=0;
             while (iter.hasNext())
             {
                 FileItem item = (FileItem) iter.next();
+                
                 if (item.isFormField())
                 {
-                	/* To-Do: Find why code never enters this loop */
-                	/* Need to set files to private here */
+                	if(item.getFieldName().equals("public"))
+                	{
+                		if(item.getString().equals("true"))
+                		{
+                			isPrivate=false;
+                		}
+                	}
                 }
                 else
                 {
-                	File newfile = new File(CACHE_PATH+"/File"+fileCount+".xlsx");
+                	String extension = item.getName();
+                	extension = extension.substring(extension.indexOf('.')+1,extension.length());
+                	File newfile = new File(CACHE_PATH+"/File"+fileCount+"."+extension);
                 	newfile.createNewFile();
                 	try 
                 	{
@@ -116,6 +124,6 @@ public class UploadHandler extends HandlerWrapper
                 }
             }
         }
-        fileListArray.put(new FileList(files,isPrivate));
+	    fileListArray.put(new FileList(files,isPrivate));
     }
 }

@@ -1,5 +1,10 @@
 package excel;
 
+/*
+ * Handler to aid the Localhub in sharing files. It provides the files to be uploaded onto the central
+ * server to LocalHub.
+ */
+
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -23,8 +28,13 @@ public class ShareHandler extends AbstractHandler
 	    String toolName=request.getParameter("toolName");
 	    
 	    logger.info("Getting file to service share request for "+toolName);
-	    response.getWriter().println(DatabaseUtil.fileForTool(toolName));	
+	    String[] file_details = DatabaseUtil.fileForTool(toolName);
 	    
+	    if(file_details!=null)
+	    {
+	    	response.getWriter().println(file_details[0]);	
+	    	response.getWriter().println(file_details[1]);
+	    }
 	    baseRequest.setHandled(true);
 	}
 	

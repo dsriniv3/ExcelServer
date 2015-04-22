@@ -35,7 +35,7 @@ public class ExcelRecommender {
 	
 	public static void scan(FileList fileList)
 	{
-        HashMap<String, File> functions_to_file_map = new HashMap<String, File>();
+		HashMap<String, File> functions_to_file_map = new HashMap<String, File>();
 		ArrayList<File> files  =  fileList.getFileList();
 		Functions functions = new Functions();
 		
@@ -92,6 +92,7 @@ public class ExcelRecommender {
 				}
 			}
 		}catch(NullPointerException e){
+			logger.error("Null pointer exception while parsing the files");
 		}
 		
 		try
@@ -107,7 +108,6 @@ public class ExcelRecommender {
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public static void reportTools(HashMap<String,File> functionMap, boolean isPrivate) throws JSONException
 	{
-		
 		ToolUsage[] usages = new ToolUsage[functionMap.size()];
 		Iterator<Entry<String, File>> it = functionMap.entrySet().iterator();
 	    
@@ -116,16 +116,21 @@ public class ExcelRecommender {
 		while (it.hasNext()) {
 		    
 			Map.Entry pair = (Map.Entry)it.next();
-		    
-			if(!isPrivate)
-		    	usages[i++] = new ToolUsage(pair.getKey().toString(), Base64Converter.encodeBase64((File)pair.getValue()));
+			File file = (File)pair.getValue();
+			String extension = file.getName();
+        	extension = extension.substring(extension.indexOf('.')+1,extension.length());
+        	if(!isPrivate)
+			{
+				
+		    	usages[i++] = new ToolUsage(pair.getKey().toString(), Base64Converter.encodeBase64(file),extension);
+			}
 		    
 			else
 		    {
 		    	usages[i++] = new ToolUsage(pair.getKey().toString());
 		    	//store file into Database to be used later if user sets sharing settings
-		    	DatabaseUtil.storeFile(pair.getKey().toString(),Base64Converter.encodeBase64((File)pair.getValue()));
 		    }
+			DatabaseUtil.storeFile(pair.getKey().toString(),Base64Converter.encodeBase64(file),extension);
 		    it.remove(); // avoids a ConcurrentModificationException
 	    }
 		

@@ -11,16 +11,18 @@ public class ToolUsage {
 	private static final Logger logger = Logger.getLogger(ToolUsage.class);
 	
 	private String toolName;
-    private String pluginName;  /* Not needed? */
+    private String pluginName;  
 	private Date timeStamp;
-	private String applicationName; /* Not needed? */
-	String file=null;
+	private String applicationName; 
+	private String file_data=null;
+	private String file_ext=null;
 	
-	ToolUsage(String toolName, String file)
+	ToolUsage(String toolName, String file, String fileExt)
 	{
 		this.toolName = toolName.trim();
 		this.timeStamp = new Date(System.currentTimeMillis());
-		this.file=file;
+		this.file_data=file;
+		this.file_ext=fileExt;
 	}
 
 	public ToolUsage(String toolName) {
@@ -35,9 +37,17 @@ public class ToolUsage {
 			jobj.put("pluginName", getPluginName());
 			jobj.put("Tool_Name", getToolName());
 			jobj.put("Tool_Timestamp", getTimeStamp().getTime());
-	
-			if(file!=null)
-				jobj.put("file", file);
+			
+			if(file_data!=null)
+			{
+				jobj.put("file_data", file_data);
+				jobj.put("file_ext", file_ext);
+			}
+			else
+			{
+				jobj.put("file_data", " ");
+				jobj.put("file_ext", " ");
+			}
 		
 		} catch (JSONException e) {
 			logger.error("Error while forming JSON object for tool "+getToolName());

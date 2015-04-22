@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 /* 
  *	Thread to service scanner requests  
 */
+
 public class ScannerThread implements Runnable
 {
 	FileListArray fileListArray;
